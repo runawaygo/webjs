@@ -304,7 +304,7 @@ web.render = function (tmlpName, obj) {
 web.extend = function (file) {
 	switch (typeof file) {
 		case 'string':
-			var extend = require('../.' + file);
+			var extend = require(file);
 			extend.extend(web);
 			break;
 		case 'object':
@@ -415,4 +415,4 @@ web.removeAllListener = function (event) {
 	return this;
 };
 //TCP Server
-web.net = require('./lib/net');
+web.net = require('./lib/net').net;
