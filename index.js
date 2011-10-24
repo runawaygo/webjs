@@ -28,24 +28,18 @@ web.mime = require('./lib/mimes').mimes,
 //Foundation Server
 var http = require('./lib/http'),
 	https = require('./lib/https');
+	
 //Method
-/*
- * @description 设置当前或指定Server的GetRouter
- * @param {Object} _gethandlers 传入的GetRouter*
- * @param {Object} server 可指定Server
- */
-web.get = function (_gethandlers, server) {
-	var key;
-	if (server) {
-		//Set to specify server
-		for (key in _gethandlers)
-			server.getHandlers[key] = _gethandlers[key];
-	} else {
-		//Default set to current server
-		for (key in _gethandlers)
-			web.server.getHandlers[key] = _gethandlers[key];
-	}
+web.httpMethodHelper = function(method, handlers, server)
+{
+	var _server = server? server:web.server;
+	for(var key in handlers)
+		_server[method+'Handlers'][key] = handlers[key];
 	return this;
+}
+
+web.get = function (_gethandlers, server) {
+	return this.httpMethodHelper('get', _gethandlers, server);
 };
 /*
  * @description Set a PostRouter to current server or specify server. 设置当前或指定的Server的PostRouter
@@ -53,48 +47,16 @@ web.get = function (_gethandlers, server) {
  * @param {Object} server Specify server 可指定Server
  */
 web.post = function (_posthandlers, server) {
-	var key;
-	if (server) {
-		for (key in _posthandlers)
-			server.postHandlers[key] = _posthandlers[key];
-	} else {
-		for (key in _posthandlers)
-			web.server.postHandlers[key] = _posthandlers[key];
-	}
-	return this;
+	return this.httpMethodHelper('post', _posthandlers, server);
 };
 web.put = function (_puthandlers, server) {
-	var key;
-	if (server) {
-		for (key in _puthandlers)
-			server.putHandlers[key] = _puthandlers[key];
-	} else {
-		for (key in _puthandlers)
-			web.server.putHandlers[key] = _puthandlers[key];
-	}
-	return this;
+	return this.httpMethodHelper('put', _puthandlers, server);
 };
 web.delete = function (_deletehandlers, server) {
-	var key;
-	if (server) {
-		for (key in _deletehandlers)
-			server.deleteHandlers[key] = _deletehandlers[key];
-	} else {
-		for (key in _deletehandlers)
-			web.server.deleteHandlers[key] = _deletehandlers[key];
-	}
-	return this;
+	return this.httpMethodHelper('delete', _deletehandlers, server);
 };
 web.head = function (_headhandlers, server) {
-	var key;
-	if (server) {
-		for (key in _headhandlers)
-			server.headHandlers[key] = _headhandlers[key];
-	} else {
-		for (key in _headhandlers)
-			web.server.headHandlers[key] = _headhandlers[key];
-	}
-	return this;
+	return this.httpMethodHelper('head', _headhandlers, server);
 };
 /*
  * @description Set a UrlRouter to current server or specify server. 设置当前或指定的Server的PostRouter
@@ -390,6 +352,12 @@ web.restart = function (server) {
 		web.server.close();
 		web.server.listen(web.server.port, web.server.host);
 	}
+	return this;
+};
+web.stop = function(server){
+	server = server ? server : web.server;
+	if(server.fd)
+		server.close();
 	return this;
 };
 web.eventListeners = {};
